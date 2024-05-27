@@ -9,7 +9,6 @@ const app = express();
 const PORT = 3018;
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use('/auth', AuthRouter);

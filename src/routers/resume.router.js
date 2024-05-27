@@ -42,4 +42,53 @@ router.post('/', authMiddleware, async (req, res, next) => {
     }
 })
 
+//이력서 목록 조회 /resume
+router.get('/created_at', authMiddleware, async (req, res, next) => {
+    try {
+        const { sort } = req.query;
+        const { userId } = req.user;
+        
+        const sortOrder = sort ? sort.toLowerCase() : 'desc';
+        const orderBy = sortOrder === 'asc' ? 'asc' : 'desc';
+
+        const resume = await prisma.resumes.findMany({
+            select : {
+                resumeId: true,
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+                title: true,
+                content: true,
+                status: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+            where : {
+                userId: +userId,
+            },
+            orderBy:{
+                createdAt: orderBy
+            },
+        });
+
+        if(!resume) {
+            return res.status(200).json({
+                status: 200,
+                message: '일치하는 값이 없습니다.',
+                data: [],
+            })
+        };
+
+        return res.status(201).json({
+            status: 201,
+            message: '이력서 목록 조회에 성공했습니다.',
+            data: resume
+        });
+    } catch (error){
+        next(error);
+    }
+})
+
 export default router;
