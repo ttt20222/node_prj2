@@ -5,7 +5,7 @@ export default function (err, req, res, next) {
         let errorMessage;
         switch(err.message) {
             case '"email" must be a valid email':
-                errorMessage = '이메일 형태가 올바르지 않습니다.';
+                errorMessage = '이메일 형식이 올바르지 않습니다.';
                 break;
             case '"name" is required':
                 errorMessage = '이름을 입력해 주세요.';
