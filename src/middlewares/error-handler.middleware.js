@@ -26,6 +26,7 @@ export default function (err, req, res, next) {
                 errorMessage = '에러';
         }
         return res.status(400).json({
+            status: 400,
             errorMessage,
         });
     }

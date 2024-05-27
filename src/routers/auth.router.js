@@ -91,12 +91,11 @@ router.post('/sign-in', async(req,res,next) => {
             { expiresIn : '12h'},
         );
 
-        res.cookie('authorization', `Bearer ${accesstoken}`);
+        res.setHeader('authorization', `Bearer ${accesstoken}`);
 
         return res.status(200).json({
             status : 200,
             message : '로그인에 성공했습니다.',
-            authorization : `Bearer ${accesstoken}`,
         });
 
     } catch(error) {
