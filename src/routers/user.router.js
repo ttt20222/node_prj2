@@ -5,7 +5,7 @@ import authMiddleware from '../middlewares/require-access-token.middleware.js';
 const router = express.Router();
 
 //내 정보 조회 /users
-router.get('/', authMiddleware, async (req, res, next) => {
+router.post('/', authMiddleware, async (req, res, next) => {
     const { userId } = req.user;
 
     const user = await prisma.user.findFirst({

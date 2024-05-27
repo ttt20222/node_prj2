@@ -11,3 +11,8 @@ export const loginUser = Joi.object({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
 });
+
+export const createResume = Joi.object({
+    title : Joi.string().required(),
+    content : Joi.string().required().min(150),
+});

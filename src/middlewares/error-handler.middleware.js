@@ -22,6 +22,15 @@ export default function (err, req, res, next) {
             case '"password" length must be at least 6 characters long':
                 errorMessage = '비밀번호는 6자리 이상이어야 합니다.';
                 break;
+            case '"title" is required':
+                errorMessage = '제목을 입력해 주세요.';
+                break;
+            case '"content" is required':
+                errorMessage = '자개소개를 입력해 주세요.';
+                break;
+            case '"content" length must be at least 150 characters long':
+                errorMessage = '자기소개는 150자 이상 작성해야 합니다.';
+                break;
             default:
                 errorMessage = '에러';
         }
