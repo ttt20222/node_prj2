@@ -18,6 +18,7 @@ export const createResume = Joi.object({
 });
 
 export const updateResumeJoi = Joi.object({
+  title: Joi.string(),
   content: Joi.string().min(150),
 });
 
