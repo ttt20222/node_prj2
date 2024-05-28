@@ -33,6 +33,21 @@ model resumes {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   user user @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumes_log resumes_log[]
 
   @@map("resumes")
+}
+
+model resumes_log {
+  logId        Int      @id @default(autoincrement()) @map("log_id")
+  recruiterId    Int      @map("recruiter_id")
+  resumeId     Int   @map("resume_id")
+  oldStatus     String   @map("old_status")
+  newStatus     String   @map("new_status")
+  reason    String   @map("reason") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  resumes resumes @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
+
+  @@map("resumes_log")
 }   
