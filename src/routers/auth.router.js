@@ -120,6 +120,13 @@ router.post('/sign-in', async(req,res,next) => {
                     refreshToken: hashRefreshToken,
                 },
             });
+
+            return res.status(200).json({
+                status : 200,
+                message : '로그인에 성공했습니다.',
+                accesstoken,
+                refreshtoken,
+            });
         };
 
         await prisma.tokens.create({

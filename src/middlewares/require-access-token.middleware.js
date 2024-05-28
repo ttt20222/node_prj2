@@ -1,18 +1,21 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default async function (req, res, next) {
     try {
-        const authorization = req.headers.authorization;
+        const accesstoken = req.headers.authorization;
 
-        if (!authorization) {
+        if (!accesstoken) {
             return res.status(401).json({
                 status: 401,
                 message: '인증 정보가 없습니다.',
             });
         }
 
-        const [tokenType, token] = authorization.split(' ');
+        const [tokenType, token] = accesstoken.split(' ');
 
         if (tokenType !== 'Bearer') {
             return res.status(401).json({
@@ -21,7 +24,7 @@ export default async function (req, res, next) {
             });
         }          
 
-        const decodedToken = jwt.verify(token, 'user-secret-key');
+        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
         const userId = decodedToken.userId;
 
         const user = await prisma.user.findFirst({
@@ -29,8 +32,6 @@ export default async function (req, res, next) {
         });
 
         if (!user) {
-            res.clearCookie('authorization');
-
             return res.status(401).json({
                 status: 401,
                 message: '인증 정보와 일치하는 사용자가 없습니다.',
@@ -42,8 +43,6 @@ export default async function (req, res, next) {
         next();
 
     } catch (error) {
-        res.clearCookie('authorization');
-        
         let errorMessage;
 
         switch (error.name) {

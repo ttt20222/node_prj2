@@ -7,16 +7,16 @@ dotenv.config();
 
 export default async function (req, res, next) {
     try{
-        const refreshToken = req.headers.authorization;
+        const refreshtoken = req.headers.authorization;
 
-        if (!refreshToken) {
+        if (!refreshtoken) {
             return res.status(401).json({
                 status: 401,
                 message: '인증 정보가 없습니다.',
             });
         };
 
-        const [tokenType, token] = refreshToken.split(' ');
+        const [tokenType, token] = refreshtoken.split(' ');
 
         if (tokenType !== 'Bearer') {
             return res.status(401).json({
@@ -43,7 +43,7 @@ export default async function (req, res, next) {
             where: { userId: +userId },
             });
 
-        if(!tokens || !(await bcrypt.compare(refreshToken, tokens.refreshToken))){
+        if(!tokens || !(await bcrypt.compare(token, tokens.refreshToken))){
             return res.status(401).json({
                 status: 401,
                 message: '폐기된 인증 정보입니다.',
