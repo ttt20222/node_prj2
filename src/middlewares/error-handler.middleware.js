@@ -31,6 +31,15 @@ export default function (err, req, res, next) {
             case '"content" length must be at least 150 characters long':
                 errorMessage = '자기소개는 150자 이상 작성해야 합니다.';
                 break;
+            case '"status" is required':
+                errorMessage = '변경하고자 하는 지원 상태를 입력해 주세요.';
+                break;
+            case '"reason" is required':
+                errorMessage = '지원 상태 변경 사유를 입력해 주세요.';
+                break;
+            case '"status" must be one of [APPLY, DROP, PASS, INTERVIEW1, INTERVIEW2, FINAL_PASS]':
+                errorMessage = '유효하지 않은 지원 상태입니다.';
+                break;
             default:
                 errorMessage = '에러';
         }

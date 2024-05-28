@@ -20,3 +20,8 @@ export const createResume = Joi.object({
 export const updateResumeJoi = Joi.object({
     content : Joi.string().min(150),
 })
+
+export const updateStatus = Joi.object({
+    status : Joi.string().valid('APPLY', 'DROP', 'PASS', 'INTERVIEW1', 'INTERVIEW2', 'FINAL_PASS').required(),
+    reason : Joi.string().required(),
+})
