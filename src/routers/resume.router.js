@@ -1,7 +1,7 @@
 import express from 'express';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/require-access-token.middleware.js';
-import { createResume, updateResume } from './joi.js';
+import { createResume, updateResumeJoi } from './joi.js';
 
 const router = express.Router();
 
@@ -204,7 +204,7 @@ router.patch('/:resume_id', authMiddleware, async (req,res,next) => {
             });
         };
 
-        await updateResume.validateAsync(req.body);
+        await updateResumeJoi.validateAsync(req.body);
     
         const resume = await prisma.resumes.findFirst({
             select : {
