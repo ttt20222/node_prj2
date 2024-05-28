@@ -3,8 +3,11 @@ import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 import { createUser, loginUser } from './joi.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 const router = express.Router();
+
+dotenv.config();
 
 //회원가입 /auth/sign-up
 router.post('/sign-up', async (req,res,next) => {
@@ -87,15 +90,33 @@ router.post('/sign-in', async(req,res,next) => {
 
         const accesstoken = jwt.sign(
             {userId : user.userId},
-            'user-secret-key',
+            process.env.ACCESS_TOKEN_SECRET_KEY,
             { expiresIn : '12h'},
         );
 
-        res.setHeader('authorization', `Bearer ${accesstoken}`);
+        const refreshtoken = jwt.sign(
+            {userId : user.userId},
+            process.env.REFRESH_TOKEN_SECRET_KEY,
+            { expiresIn : '7d'},
+        );
+
+        res.setHeader('accesstoken', `Bearer ${accesstoken}`);
+        res.setHeader('refreshtoken', `Bearer ${refreshtoken}`);
+
+        const hashRefreshToken = await bcrypt.hash(refreshtoken, 10);
+
+        await prisma.tokens.create({
+            data: {
+                userId: user.userId,
+                refreshToken: hashRefreshToken,
+            }
+        });
 
         return res.status(200).json({
             status : 200,
             message : '로그인에 성공했습니다.',
+            accesstoken,
+            refreshtoken,
         });
 
     } catch(error) {
