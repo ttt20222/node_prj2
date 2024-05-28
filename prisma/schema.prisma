@@ -19,6 +19,7 @@ model user {
 
   resumes resumes[]
   resumes_log resumes_log[]
+  tokens tokens?
 
   @@map("user")
 }
@@ -52,4 +53,16 @@ model resumes_log {
   user user @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
 
   @@map("resumes_log")
-}   
+}
+
+model tokens {
+  tokenId    Int     @id @default(autoincrement()) @map("token_id")
+  userId    Int   @unique   @map("user_id")
+  refreshToken     String   @map("refresh_token")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user user @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("tokens")
+}
