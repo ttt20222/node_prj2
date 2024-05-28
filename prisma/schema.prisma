@@ -18,6 +18,7 @@ model user {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   resumes resumes[]
+  resumes_log resumes_log[]
 
   @@map("user")
 }
@@ -48,6 +49,7 @@ model resumes_log {
   createdAt DateTime @default(now()) @map("created_at")
 
   resumes resumes @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
+  user user @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
 
   @@map("resumes_log")
 }   
