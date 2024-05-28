@@ -90,13 +90,13 @@ router.post('/sign-in', async (req, res, next) => {
 
     const accesstoken = jwt.sign(
       { userId: user.userId },
-      process.env.ACCESS_TOKEN_SECRET_KEY,
+      `${process.env.ACCESS_TOKEN_SECRET_KEY}`,
       { expiresIn: '12h' }
     );
 
     const refreshtoken = jwt.sign(
       { userId: user.userId },
-      process.env.REFRESH_TOKEN_SECRET_KEY,
+      `${process.env.REFRESH_TOKEN_SECRET_KEY}`,
       { expiresIn: '7d' }
     );
 

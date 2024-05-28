@@ -12,13 +12,13 @@ router.post('/refresh', refreshMiddleware, async (req, res, next) => {
 
   const accesstoken = jwt.sign(
     { userId: userId },
-    process.env.ACCESS_TOKEN_SECRET_KEY,
+    `${process.env.ACCESS_TOKEN_SECRET_KEY}`,
     { expiresIn: '12h' }
   );
 
   const refreshtoken = jwt.sign(
     { userId: userId },
-    process.env.REFRESH_TOKEN_SECRET_KEY,
+    `${process.env.REFRESH_TOKEN_SECRET_KEY}`,
     { expiresIn: '7d' }
   );
 

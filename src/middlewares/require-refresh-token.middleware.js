@@ -27,7 +27,7 @@ export default async function (req, res, next) {
 
     const decodedToken = jwt.verify(
       token,
-      process.env.REFRESH_TOKEN_SECRET_KEY
+      `${process.env.REFRESH_TOKEN_SECRET_KEY}`
     );
     const userId = decodedToken.userId;
 
