@@ -1,7 +1,7 @@
 import express from 'express';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/require-access-token.middleware.js';
-import { createResume } from './joi.js';
+import { createResume, updateResume } from './joi.js';
 
 const router = express.Router();
 
@@ -42,14 +42,31 @@ router.post('/', authMiddleware, async (req, res, next) => {
     }
 })
 
-//이력서 목록 조회 /resume/created_at
-router.get('/created_at', authMiddleware, async (req, res, next) => {
+//이력서 목록 조회 /resume?sort=desc
+router.get('/', authMiddleware, async (req, res, next) => {
     try {
-        const { sort } = req.query;
+        const { sort , status } = req.query;
         const { userId } = req.user;
+
+        const filter = {
+            userId: +userId,
+        };
+
+        if(status) {
+            filter.status = status;
+        };
         
         const sortOrder = sort ? sort.toLowerCase() : 'desc';
         const orderBy = sortOrder === 'asc' ? 'asc' : 'desc';
+
+        const user = await prisma.user.findFirst({
+            where: {userId: +userId},
+            select: {role: true},
+        });
+
+        if(user.role === 'RECRUITER'){
+            delete filter.userId;
+        }
 
         const resume = await prisma.resumes.findMany({
             select : {
@@ -65,9 +82,7 @@ router.get('/created_at', authMiddleware, async (req, res, next) => {
                 createdAt: true,
                 updatedAt: true,
             },
-            where : {
-                userId: +userId,
-            },
+            where : filter,
             orderBy:{
                 createdAt: orderBy
             },
@@ -98,6 +113,45 @@ router.get('/:resume_id', authMiddleware, async (req, res, next) => {
         const params = req.params;
         const resumeId = params.resume_id;
     
+        const user = await prisma.user.findFirst({
+            where: {userId: +userId},
+            select: {role: true}
+        });
+
+        if(user.role === 'RECRUITER'){
+            const allResume = await prisma.resumes.findFirst({
+                select : {
+                    resumeId: true,
+                    user: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    title: true,
+                    content: true,
+                    status: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+                where : {
+                    resumeId: +resumeId,
+                },
+            });
+
+            if(!allResume) {
+                return res.status(400).json({
+                    status: 400,
+                    message: '이력서가 존재하지 않습니다.'
+                });
+            };
+        
+            return res.status(201).json({
+                status: 201,
+                message: '이력서 상세 조회에 성공했습니다.',
+                data: allResume
+            });
+        };
+
         const resume = await prisma.resumes.findFirst({
             select : {
                 resumeId: true,
@@ -149,6 +203,8 @@ router.patch('/:resume_id', authMiddleware, async (req,res,next) => {
                 message: '수정 할 정보를 입력해 주세요.'
             });
         };
+
+        await updateResume.validateAsync(req.body);
     
         const resume = await prisma.resumes.findFirst({
             select : {
@@ -183,9 +239,7 @@ router.patch('/:resume_id', authMiddleware, async (req,res,next) => {
                 content: content || resume.content,
             },
         });
-    
-        //content 수정시 150자 이상 체크
-        
+
         return res.status(200).json({
             status: 200,
             message: '이력서 수정에 성공했습니다.',

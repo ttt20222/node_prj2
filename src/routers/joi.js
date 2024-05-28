@@ -16,3 +16,7 @@ export const createResume = Joi.object({
     title : Joi.string().required(),
     content : Joi.string().required().min(150),
 });
+
+export const updateResume = Joi.object({
+    content : Joi.string().min(150),
+})
