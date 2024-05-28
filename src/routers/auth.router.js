@@ -105,6 +105,23 @@ router.post('/sign-in', async(req,res,next) => {
 
         const hashRefreshToken = await bcrypt.hash(refreshtoken, 10);
 
+        const existingToken = await prisma.tokens.findFirst({
+            where: {
+                userId: user.userId,
+            },
+        });
+
+        if (existingToken) {
+            await prisma.tokens.update({
+                where: {
+                    userId: user.userId,
+                },
+                data: {
+                    refreshToken: hashRefreshToken,
+                },
+            });
+        };
+
         await prisma.tokens.create({
             data: {
                 userId: user.userId,

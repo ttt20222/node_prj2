@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
+import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+
+dotenv.config();
 
 export default async function (req, res, next) {
     try{
@@ -21,7 +25,7 @@ export default async function (req, res, next) {
             });
         };
 
-        const decodedToken = jwt.verify(token, 'user-secret-key');
+        const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET_KEY);
         const userId = decodedToken.userId;
 
         const user = await prisma.user.findFirst({
@@ -39,10 +43,10 @@ export default async function (req, res, next) {
             where: { userId: +userId },
             });
 
-        if(!tokens){
+        if(!tokens || !(await bcrypt.compare(refreshToken, tokens.refreshToken))){
             return res.status(401).json({
                 status: 401,
-                message: '폐기 된 인증 정보입니다.',
+                message: '폐기된 인증 정보입니다.',
             });
         }
 
