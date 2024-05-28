@@ -98,10 +98,20 @@ router.get('/', authMiddleware, async (req, res, next) => {
             })
         };
 
+        const transformedResume = resume.map(x => ({
+            resumeId: x.resumeId,
+            name: x.user.name,
+            title: x.title,
+            content: x.content,
+            status: x.status,
+            createdAt: x.createdAt,
+            updatedAt: x.updatedAt,
+        }));
+
         return res.status(201).json({
             status: 201,
             message: '이력서 목록 조회에 성공했습니다.',
-            data: resume
+            data: transformedResume
         });
     } catch (error){
         next(error);
@@ -146,11 +156,21 @@ router.get('/:resume_id', authMiddleware, async (req, res, next) => {
                     message: '이력서가 존재하지 않습니다.'
                 });
             };
+
+            const transformedResume = {
+                resumeId: allResume.resumeId,
+                name: allResume.user.name,
+                title: allResume.title,
+                content: allResume.content,
+                status: allResume.status,
+                createdAt: allResume.createdAt,
+                updatedAt: allResume.updatedAt,
+            };
         
             return res.status(201).json({
                 status: 201,
                 message: '이력서 상세 조회에 성공했습니다.',
-                data: allResume
+                data: transformedResume
             });
         };
 
@@ -180,11 +200,21 @@ router.get('/:resume_id', authMiddleware, async (req, res, next) => {
                 message: '이력서가 존재하지 않습니다.'
             });
         };
+
+        const transformedResume = {
+            resumeId: resume.resumeId,
+            name: resume.user.name,
+            title: resume.title,
+            content: resume.content,
+            status: resume.status,
+            createdAt: resume.createdAt,
+            updatedAt: resume.updatedAt,
+        };
     
         return res.status(201).json({
             status: 201,
             message: '이력서 상세 조회에 성공했습니다.',
-            data: resume
+            data: transformedResume
         });
     } catch(error){
         next(error);
@@ -367,5 +397,57 @@ router.patch('/:resume_id/status', authMiddleware, requireRoles(['RECRUITER']), 
     }
 })
 
+//이력서 로그 목록 조회 /resume/:resume_id/log
+router.get('/:resume_id/log', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
+    try{
+        const params = req.params;
+        const resumeId = params.resume_id;
+    
+        const resumesLog = await prisma.resumes_log.findMany({
+            where: {resumeId: +resumeId},
+            select: {
+                logId: true,
+                user: {
+                    select: {
+                        name:true
+                    },
+                },
+                resumeId: true,
+                oldStatus: true,
+                newStatus: true,
+                reason: true,
+                createdAt: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    
+        if(!resumesLog) {
+            return res.status(200).json({
+                status: 200,
+                data: [],
+            })
+        };
+
+        const transformedResumesLog = resumesLog.map(log => ({
+            logId: log.logId,
+            recruiterName: log.user.name,
+            resumeId: log.resumeId,
+            oldStatus: log.oldStatus,
+            newStatus: log.newStatus,
+            reason: log.reason,
+            createdAt: log.createdAt,
+        }));
+    
+        return res.status(201).json({
+            status: 200,
+            message: '이력서 로그 목록 조회에 성공했습니다.',
+            data: transformedResumesLog,
+        });
+    } catch(error){
+        next(error);
+    }
+})
 
 export default router;
